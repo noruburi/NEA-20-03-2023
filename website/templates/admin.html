@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Page</title>
+</head>
+<body>
+  <div class="container">
+    <h1>Transactions</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Sequence</th>
+          <th>From Account ID</th>
+          <th>Date Time</th>
+          <th>To Account ID</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for transaction in transactions %}
+          <tr>
+            <td>{{ transaction.sequence }}</td>
+            <td>{{ transaction.from_account_id }}</td>
+            <td>{{ transaction.dateTime }}</td>
+            <td>{{ transaction.to_account_id }}</td>
+            <td>{{ transaction.amount }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+  <div class="container">
+    <h1>Teacher Role Requests</h1>
+    {% if teacher_requests %}
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in teacher_requests %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <form action="{{ url_for('auth.update_teacher_request') }}" method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit" name="action" value="approve">Approve</button>
+                        <button type="submit" name="action" value="reject">Reject</button>
+                    </form>
+                    </td>
+                </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    {% else %}
+        <p>No teacher role requests at this time.</p>
+    {% endif %}
+</div>
+
+
+  {% block footer %}
+  {% endblock %}
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h1>Your account dashboard</h1>
+    <hr>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card mb-4">
+          <div class="card-body">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link" id="coupon-tab" data-toggle="tab" href="#coupon" role="tab" aria-controls="coupon" aria-selected="false">My Coupons</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" id="transaction-tab" data-toggle="tab" href="#transaction" role="tab" aria-controls="transaction" aria-selected="true">Transaction History</a>
+              </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="transaction" role="tabpanel" aria-labelledby="transaction-tab">
+                <table class="transaction-table">
+                  <thead>
+                    <tr>
+                      <th>Date Purchased</th>
+                      <th>Date Redeemed</th>
+                      <th>Item Name</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for transaction in transactions %}
+                      <tr>
+                        <td>{{ transaction.dateTime }}</td>
+                        <td>{{ transaction.date_redeemed }}</td>
+                        <td>{{ transaction.coupon.name }}</td>
+                        <td>{{ transaction.amount }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="tab-pane fade" id="coupon" role="tabpanel" aria-labelledby="coupon-tab">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Description</th>
+                      <th>Points</th>
+                      <th>Redeemed</th>
+                      <th>Code</th>
+                      <th>Redeem</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for coupon in user.coupons %}
+                      <tr id="coupon-row-{{ coupon.id }}">
+                        <td>{{ coupon.name }}</td>
+                        <td>{{ coupon.description }}</td>
+                        <td>{{ coupon.points_cost }}</td>
+                        <td>{{ 'Yes' if coupon.redeemed else 'No' }}</td>
+                        <td id="code-{{ coupon.id }}" style="{{ 'display: table-cell;' if coupon.redeemed else 'display: none;' }}">{{ coupon.code if coupon.redeemed else '' }}</td>
+                        <td>
+                          {% if not coupon.redeemed %}
+                            <form id="redeem-form-{{ coupon.id }}" method="post">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                              <input type="hidden" name="coupon_id" value="{{ coupon.id }}">
+                              <button id="redeem-btn-{{ coupon.id }}" type="button" class="btn btn-primary">Redeem</button>
+                            </form>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block scripts %}
+  <script>
+function redeemCoupon(couponId) {
+  console.log("Redeeming coupon with ID:", couponId);
+
+  const form = document.querySelector(`#redeem-form-${couponId}`);
+  console.log("Form element:", form);
+
+  const formData = new FormData(form);
+  console.log("Form data:", formData);
+
+  const csrfToken = "{{ csrf_token() }}";
+  console.log("CSRF token:", csrfToken);
+
+  fetch("{{ url_for('auth.redeem_coupon') }}", {
+    method: "POST",
+    body: formData,
+    headers: {
+      'X-CSRFToken': csrfToken
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Response data:", data);
+    if (data.success) {
+      const codeCell = document.querySelector(`#code-${couponId}`);
+      codeCell.innerText = data.code;
+      codeCell.style.display = 'table-cell';
+
+      document.querySelector(`#redeem-btn-${couponId}`).style.display = 'none';
+      document.querySelector(`#coupon-row-${couponId} td:nth-child(4)`).innerText = 'Yes';
+    } else {
+      alert(data.message);
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+    alert(error.message);
+  });
+}
+
+    window.addEventListener('load', () => {
+      console.log("Window load event fired");
+      document.querySelectorAll('[id^="redeem-btn-"]').forEach(button => {
+        button.addEventListener('click', event => {
+          const couponId = event.target.id.split('-')[2];
+          redeemCoupon(couponId);
+        });
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,24 @@
+<div class="navbar">
+  {% if user.is_authenticated and user.role.name == 'admin' %}
+  <a class="nav-item nav-link" id="login" href="/admin">Admin Panel</a>
+  <a class="nav-item nav-link" id="login" href="/teacher_requests_history">Request history</a>
+  <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+{% elif user.is_authenticated and user.role.name == 'teacher' %}
+  <a class="nav-item nav-link" id="login" href="/award_points">Award Points</a>
+  <a class="nav-item nav-link" id="login" href="/create_class">Class Creation</a>
+  <a class="nav-item nav-link" id="login" href="/teacher">Dashboard</a>
+  <a class="nav-item nav-link" id="login" href="{{ url_for('auth.join_request') }}">Join Requests</a>
+  <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+
+  {% elif user.is_authenticated and user.role.name == 'student' %}
+  <a class="nav-item nav-link" id="login" href="{{ url_for('auth.student', student_id=current_user.id) }}">Join Class</a>
+  <a class="nav-item nav-link" id="login" href="/student_rewards">Redeem Points</a>
+  <a class="nav-item nav-link" id="login" href="/dashboard">Student Dashboard</a>
+  <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+{% else %}
+  <a class="nav-item nav-link" id="login" href="/landing">Home</a>
+  <a class="nav-item nav-link" id="login" href="/login">Login</a>
+  <a class="nav-item nav-link" id="login" href="/sign_up">Sign up</a>
+  <a href="#contact">Contact Us</a>
+{% endif %}
+</div>

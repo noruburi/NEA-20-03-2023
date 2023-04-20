@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h1>Award Points</h1>
+    <hr>
+
+    {% if current_user.is_teacher() %}
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Weekly Point Limit</h5>
+            <p class="card-text">You can award up to {{ current_user.weekly_point_limit }} points per week.</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="col-md-8">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Points Awarded This Week</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="progress">
+                  <div class="progress-bar bg-success" role="progressbar" style="width: {{ current_user.points_awarded_percentage }}%;" aria-valuenow="{{ current_user.points_awarded_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ current_user.points_awarded_this_week }}</div>
+                </div>
+                <p class="text-center mt-2">Points Awarded: {{ current_user.points_awarded_this_week }}</p>
+              </div>
+              <div class="col-md-6">
+                <div class="progress">
+                  <div class="progress-bar bg-info" role="progressbar" style="width: {{ current_user.remaining_point_percentage }}%;" aria-valuenow="{{ current_user.remaining_point_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ current_user.remaining_points }}</div>
+                </div>
+                <p class="text-center mt-2">Points Remaining: {{ current_user.remaining_points }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div class="container">
+        <form method="POST" action="{{ url_for('auth.award_points') }}">
+            <div class="form-group">
+              <label for="year_group">Year Group:</label>
+              <select class="form-control" id="year_group" name="year_group" required>
+                <option value="">Select a year group</option>
+                {% for year_group in year_groups %}
+                  <option value="{{ year_group.year_group }}">{{ year_group.year_group }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="class_id">Class:</label>
+              <select class="form-control" id="class_id" name="class_id" required>
+                <option value="">Select a class</option>
+                {% for class in classes %}
+                  <option value="{{ class.id }}">{{ class.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="student_id">Student:</label>
+              <select class="form-control" id="student_id" name="student_id" required>
+                <option value="">Select a student</option>
+                {% for student in students %}
+                  <option value="{{ student.id }}">{{ student.first_name }} {{ student.last_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="amount">Amount:</label>
+              <input type="number" class="form-control" id="amount" name="amount" min="1" max="{{ current_user.remaining_points }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Award Points</button>
+          </form>
+      </div>
+
+{% endblock %}

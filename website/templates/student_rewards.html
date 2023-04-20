@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Student Rewards{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Student Rewards</h1>
+  <p>Use your points to purchase rewards below:</p>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Points</th>
+        <th>Purchase</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in available_items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.points }}</td>
+        <td>
+          {% if current_user.remaining_points >= item.points %}
+          <form action="{{ url_for('auth.student_rewards') }}" method="POST">
+            <input type="hidden" name="item_index" value="{{ loop.index0 }}">
+            <button type="submit" class="btn btn-primary">Purchase</button>
+          </form>
+          {% else %}
+          <button class="btn btn-secondary" disabled>Not enough points</button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

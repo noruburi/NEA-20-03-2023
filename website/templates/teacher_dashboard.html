@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Existing content for the student -->
+<!-- Add the following section to display the classes -->
+<div class="container">
+  <h2>Available Classes</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Class Name</th> <!-- Add this new header -->
+        <th>Subject</th>
+        <th>Year Group</th>
+        <th>Teacher</th>
+        <th>Action</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for class in classes %}
+      <tr>
+        <td>{{ class.class_name() }}</td> <!-- Display the generated class name -->
+        <td>{{ class.subject.name }}</td>
+        <td>{{ class.year_group }}</td>
+        <td>{{ class.teacher.name }}</td>
+        <td><a href="{{ url_for('auth.request_join_class', student_id=student.id, class_id=class.id) }}" class="btn btn-primary">Request to Join</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<!-- Add a form for the user to search for classes -->
+<div class="container">
+  <form method="GET" action="{{ url_for('auth.student', student_id=student.id) }}">
+    <div class="form-group">
+      <label for="year_group">Year Group:</label>
+      <input type="number" class="form-control" id="year_group" name="year_group" min="1" step="1" value="{{ search_year_group|default('') }}">
+    </div>
+    <div class="form-group">
+      <label for="subject_id">Subject:</label>
+      <select class="form-control" id="subject_id" name="subject_id">
+        <option value="">Select a subject</option>
+        {% for subject in subjects %}
+          <option value="{{ subject.id }}" {% if subject.id == search_subject_id|int %}selected{% endif %}>{{ subject.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="teacher_id">Teacher:</label>
+      <select class="form-control" id="teacher_id" name="teacher_id">
+        <option value="">Select a teacher</option>
+        {% for teacher in teachers %}
+          <option value="{{ teacher.id }}" {% if teacher.id == search_teacher_id|int %}selected{% endif %}>{{ teacher.first_name }} {{ teacher.last_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+{% endblock %}

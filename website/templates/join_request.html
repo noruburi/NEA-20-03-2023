@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher page{% endblock %}
+{% block content %}
+
+<div class="container">
+  <h2>Join Requests</h2>
+  <div class="mb-3">
+    <a href="{{ url_for('auth.join_request', filter='pending') }}" class="btn btn-warning">Pending Requests</a>
+    <a href="{{ url_for('auth.join_request', filter='accepted_rejected') }}" class="btn btn-info">Accepted/Rejected Requests</a>
+    <a href="{{ url_for('auth.join_request', filter='all') }}" class="btn btn-primary">All Requests</a>    
+  </div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Class</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for join_request in join_requests %}
+      <tr>
+        <td>{{ join_request.student.user_name }}</td>
+        <td>{{ join_request.class_.name }}</td>
+        <td>{{ join_request.status }}</td>
+        <td>
+          {% if join_request.status == 'pending' %}
+          <a href="{{ url_for('auth.respond_join_request', join_request_id=join_request.id, action='accept') }}" class="btn btn-primary">Accept</a>
+          <a href="{{ url_for('auth.respond_join_request', join_request_id=join_request.id, action='reject') }}" class="btn btn-danger">Reject</a>
+          {% else %}
+          No action needed
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

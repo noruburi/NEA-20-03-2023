@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Requests History{% endblock %}
+
+{% block content %}
+
+  <!-- Display the title. -->
+  <h1>Teacher Request History</h1> 
+  <!-- Set up a container to hold the teacher request history. -->
+  <div class="container">
+    <!-- Group the requests by user ID. -->
+    {% set groups = requests | groupby(attribute='user_id') %}
+    {% for group in groups %}
+      {% set user = group[1][0].user %}
+      <div class="card">
+        <div class="card-body">
+          <!-- Display the user's name. -->
+          <h5 class="card-title">{{ user.user_name }}</h5>
+          <!-- Display the role requested on. -->
+          <p class="card-text">Role requested on: {{ user.role_requested_on }}</p>
+          <!-- Get the latest request for this user. -->
+          {% set latest_request = group[1][-1] %}
+          <!-- Display the status of the latest request. -->
+          <p class="card-text">Status: {{ latest_request.status }}</p>
+          {% if latest_request.status == "accepted" %}
+            <!-- If the request was accepted, display the date it was accepted and who accepted it. -->
+            <p class="card-text">Date accepted: {{ latest_request.date_resolved }}</p>
+            <p class="card-text">Accepted by: {{ latest_request.resolved_by.user_name }} {{ latest_request.resolved_by.last_name }}</p>
+          {% elif latest_request.status == "rejected" %}
+            <!-- If the request was rejected, display the date it was rejected and who rejected it. -->
+            <p class="card-text">Date rejected: {{ latest_request.date_resolved }}</p>
+            <p class="card-text">Rejected by: {{ latest_request.resolved_by.user_name }}</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
